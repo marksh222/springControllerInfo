@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class CustomAnnotationIntegration {
+  @SuppressWarnings("SameReturnValue")
   @RequestMapping(value = "/uriExample", method = RequestMethod.PUT)
   @ControllerInfo
   public String requestMappingExample() {

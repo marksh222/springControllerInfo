@@ -11,10 +11,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringBootTest(classes = SpringControllerInfoApplication.class)
 public class CustomAnnotationIntegrationTest {
   @Autowired
-  private CustomAnnotationIntegration service;
+  private CustomAnnotationIntegration customAnnotationIntegration;
 
   @Test
   public void shouldApplyCustomAnnotation() {
-    service.requestMappingExample();
+    customAnnotationIntegration.requestMappingExample();
   }
 }

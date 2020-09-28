@@ -1,20 +1,40 @@
 package com.example.demo.aop;
 
+import com.example.demo.entity.RequestLog;
+import com.example.demo.service.RequestLogService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.time.Instant;
 
 @Aspect
 @Component
 public class ControllerInfoAspect {
+
+  private static final boolean NON_DURABLE = false;
+  public static final String MY_QUEUE_NAME = "myQueue";
+
+  private final RequestLogService requestLogService;
+  private final RabbitTemplate rabbitTemplate;
+
+  public ControllerInfoAspect(RequestLogService requestLogService, RabbitTemplate rabbitTemplate)
+  {
+    this.requestLogService = requestLogService;
+    this.rabbitTemplate = rabbitTemplate;
+  }
 
   @Around("@annotation(com.example.demo.annotation.ControllerInfo)")
   public Object controllerInfo(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -83,13 +103,33 @@ public class ControllerInfoAspect {
                                               String classParent,
                                               String methodSignature)
   {
-    System.out.println("@rc= "+rc); 
-    System.out.println("@time= "+time);
-    System.out.println("@exception= "+exception); 
-    System.out.println("@uri= "+uri);
-    System.out.println("@httpMethod= "+httpMethod);
-    System.out.println("@classParent= "+classParent);
-    System.out.println("@methodSignature= "+methodSignature);
+    RequestLog requestLog = new RequestLog();
+    requestLog.setReturnCode(rc == null ? null : rc.toString());
+    requestLog.setTimeRequest(new Timestamp(time));
+    requestLog.setException(exception);
+    requestLog.setUri(uri);
+    requestLog.setHttpMethod(httpMethod);
+    requestLog.setClassParent(classParent);
+    requestLog.setMethodSignature(methodSignature);
+
+    rabbitTemplate.convertAndSend(MY_QUEUE_NAME, requestLog);
+  }
+  // ------------ RabbitMq -------
+  @Bean
+  public ApplicationRunner runner(RabbitTemplate template) {
+    return args -> template.convertAndSend("myQueue", RequestLog.createEmptyRequestLog());
+  }
+
+  @Bean
+  public Queue myQueue() {
+    return new Queue(MY_QUEUE_NAME, NON_DURABLE);
+  }
+
+  @RabbitListener(queues = MY_QUEUE_NAME)
+  public void listen(RequestLog in) {
+    if (!RequestLog.isEmptyRequestLog(in)) {
+      requestLogService.insertRequestLog(in);
+    }
   }
 
 }
