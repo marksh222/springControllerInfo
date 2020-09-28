@@ -2,6 +2,7 @@ package com.example.demo.repository;
 
 import com.example.demo.entity.RequestLog;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class RequestLogRepositoryImpl implements RequestLogRepository {
@@ -13,7 +14,8 @@ public class RequestLogRepositoryImpl implements RequestLogRepository {
   }
 
   @Override
+  @Transactional
   public RequestLog insertRequestLog(RequestLog requestLog) {
-    return crudRequestLogRepository.saveAndFlush(requestLog);
+   return crudRequestLogRepository.saveAndFlush(requestLog);
   }
 }

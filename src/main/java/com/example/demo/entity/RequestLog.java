@@ -7,13 +7,14 @@ import java.util.Objects;
 
 @SuppressWarnings({"JpaDataSourceORMInspection", "RedundantSuppression", "unused"})
 @Entity
-@Table(name = "requestLog")
+@Table(name = "request_log", schema= "controller_info")
 public class RequestLog implements Serializable {
   @Transient
   private final static long PSEVDO_ID = -1L;
 
   @Id
-  private long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   @Column(name = "class_parent")
   private String classParent;
@@ -41,15 +42,22 @@ public class RequestLog implements Serializable {
   }
 
   public static boolean isEmptyRequestLog(RequestLog requestLog) {
-    return (requestLog == null || requestLog.getId() == PSEVDO_ID);
+    if (requestLog == null) {
+      return true;
+    }
+    Long id = requestLog.getId();
+    if (id == null) {
+      return false;
+    }
+    return (id == PSEVDO_ID);
   }
 
 
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -115,7 +123,7 @@ public class RequestLog implements Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     RequestLog that = (RequestLog) o;
-    return id == that.id &&
+    return id.equals(that.id) &&
         Objects.equals(classParent, that.classParent) &&
         Objects.equals(methodSignature, that.methodSignature) &&
         Objects.equals(timeRequest, that.timeRequest) &&

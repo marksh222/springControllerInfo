@@ -14,7 +14,8 @@ public class CustomAnnotationIntegrationTest {
   private CustomAnnotationIntegration customAnnotationIntegration;
 
   @Test
-  public void shouldApplyCustomAnnotation() {
+  public void shouldApplyCustomAnnotation() throws InterruptedException {
     customAnnotationIntegration.requestMappingExample();
+    Thread.sleep(2000);
   }
 }
