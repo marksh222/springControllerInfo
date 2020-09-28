@@ -1,0 +1,5 @@
+http://localhost:15672
+или HTTP API:
+http: //localhost:15672/api/index.html
+
+guest/guest
