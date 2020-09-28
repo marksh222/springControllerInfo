@@ -101,8 +101,8 @@ public class ControllerInfoAspect {
                                               String uri,
                                               String httpMethod,
                                               String classParent,
-                                              String methodSignature)
-  {
+                                              String methodSignature) {
+
     RequestLog requestLog = new RequestLog();
     requestLog.setReturnCode(rc == null ? null : rc.toString());
     requestLog.setTimeRequest(new Timestamp(time));

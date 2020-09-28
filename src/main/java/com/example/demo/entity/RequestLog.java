@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @SuppressWarnings({"JpaDataSourceORMInspection", "RedundantSuppression", "unused"})
 @Entity
-@Table(name = "request_log", schema= "controller_info")
+@Table(name = "request_log")
 public class RequestLog implements Serializable {
   @Transient
   private final static long PSEVDO_ID = -1L;
